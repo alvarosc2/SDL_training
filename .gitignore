@@ -1,0 +1,14 @@
+# Build artifacts
+/build/
+*.o
+*.d
+
+# Core dumps
+core
+core.*
+
+# Editor and OS files
+*~
+*.swp
+*.swo
+.DS_Store
