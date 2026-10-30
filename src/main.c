@@ -1,11 +1,45 @@
 // Using SDL and standard IO
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <stdbool.h>
 #include <stdio.h>
 
 // Screen dimension constants
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
+#define SCREEN_WIDTH 640
+#define SCREEN_HEIGHT 480
+// Terminal font color
+#define TERMINAL_GREEN 0, 255, 70
+
+#define TERMINAL_FONT_PATH "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
+#define TERMINAL_FONT_SIZE 16
+#define TERMINAL_MARGIN 10
+#define TERMINAL_PANE_WIDTH 540
+#define STEP_DELAY_MS 150
+
+void draw_text(SDL_Renderer *renderer, TTF_Font *font, const char *text, int x, int y)
+{
+    if (text[0] == '\0')
+    {
+        return;
+    }
+
+    SDL_Color green = {TERMINAL_GREEN, 255};
+    SDL_Surface *surface = TTF_RenderUTF8_Blended(font, text, green);
+    if (surface == NULL)
+    {
+        return;
+    }
+
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_Rect dest = {x, y, surface->w, surface->h};
+    SDL_FreeSurface(surface);
+
+    if (texture != NULL)
+    {
+        SDL_RenderCopy(renderer, texture, NULL, &dest);
+        SDL_DestroyTexture(texture);
+    }
+}
 
 int main(int argc, char *args[])
 {
@@ -16,7 +50,7 @@ int main(int argc, char *args[])
     SDL_Surface *screenSurface = NULL;
 
     // Initialize SDL
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
+    if (SDL_Init(SDL_INIT_VIDEO) != 0 || TTF_Init() != 0)
     {
         printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
     }
@@ -30,14 +64,8 @@ int main(int argc, char *args[])
         }
         else
         {
-            // Get window surface
-            screenSurface = SDL_GetWindowSurface(window);
-
-            // Fill the surface black
-            SDL_FillRect(screenSurface, NULL, SDL_MapRGB(screenSurface->format, 0x00, 0x00, 0x00));
-
-            // Update the surface
-            SDL_UpdateWindowSurface(window);
+            SDL_Renderer *renderer = window ? SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED) : NULL;
+            TTF_Font *font = TTF_OpenFont(TERMINAL_FONT_PATH, TERMINAL_FONT_SIZE);
 
             // Hack to get window to stay up
             SDL_Event e;
@@ -49,6 +77,11 @@ int main(int argc, char *args[])
                     if (e.type == SDL_QUIT)
                         quit = true;
                 }
+
+                SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+                SDL_RenderClear(renderer);
+                draw_text(renderer, font, "Alvaro Silva Caballero", TERMINAL_MARGIN, 100);
+                SDL_RenderPresent(renderer);
             }
         }
     }

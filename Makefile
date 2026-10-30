@@ -11,8 +11,8 @@ TEST_SUPPORT_SOURCES := $(filter-out src/main.c,$(SOURCES))
 CPPFLAGS += -Isrc
 CFLAGS ?= -std=c11 -Wall -Wextra -Wpedantic -O2
 
-SDL_CFLAGS := $(shell pkg-config --cflags sdl2)
-SDL_LIBS := $(shell pkg-config --libs sdl2)
+SDL_CFLAGS := $(shell pkg-config --cflags sdl2 SDL2_ttf)
+SDL_LIBS := $(shell pkg-config --libs sdl2 SDL2_ttf)
 CRITERION_CFLAGS := $(shell pkg-config --cflags criterion)
 CRITERION_LIBS := $(shell pkg-config --libs criterion)
 
